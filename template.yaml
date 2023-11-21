@@ -1,0 +1,63 @@
+# https://github.com/awslabs/serverless-application-model/blob/develop/versions/2016-10-31.md
+# Indentation needs to be set with spaces, because YAML...
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+    ArenaMatchStatsQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: arena-match-stats-queue
+            VisibilityTimeout: 601
+    ArenaMatchStatsQueuePolicy:
+        Type: AWS::SQS::QueuePolicy
+        Properties:
+            PolicyDocument:
+                Version: '2012-10-17'
+                Id: ArenaMatchStatsQueuePolicy
+                Statement:
+                    - Sid: Allow-SNS-SendMessage
+                      Effect: Allow
+                      Principal:
+                          AWS: '*'
+                      Action:
+                          - sqs:SendMessage
+                      Resource: !GetAtt ArenaMatchStatsQueue.Arn
+                      Condition:
+                          ArnEquals:
+                              aws:SourceArn: arn:aws:sns:us-west-2:478062583808:arena-review-published
+            Queues:
+                - !Ref ArenaMatchStatsQueue
+    ArenaMatchStatsSnsSubscription:
+        Type: AWS::SNS::Subscription
+        Properties:
+            Protocol: SQS
+            Endpoint: !GetAtt ArenaMatchStatsQueue.Arn
+            TopicArn: arn:aws:sns:us-west-2:478062583808:arena-review-published
+
+    ArenaMatchStatsProcessFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: process-arena-match-stats.default
+            Runtime: nodejs16.x
+            CodeUri: ./dist/process-arena-match-stats
+            Timeout: 30
+            MemorySize: 256
+            ReservedConcurrentExecutions: 10
+            Layers:
+                - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
+            Policies:
+                - AWSLambdaVPCAccessExecutionRole
+                - SecretsManagerReadWrite
+                - AmazonSESFullAccess
+                - AmazonSQSFullAccess
+                - AmazonSNSFullAccess
+                - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+            Tags:
+                LambdaName: process-arena-match-stats
+            Events:
+                SQSEvent:
+                    Type: SQS
+                    Properties:
+                        Queue: !GetAtt ArenaMatchStatsQueue.Arn
