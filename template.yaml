@@ -42,7 +42,7 @@ Resources:
             Runtime: nodejs16.x
             CodeUri: ./dist/process-arena-match-stats
             Timeout: 30
-            MemorySize: 512
+            MemorySize: 4000 # Match analysis can be memory intensive
             ReservedConcurrentExecutions: 10
             Layers:
                 - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"

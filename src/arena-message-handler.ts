@@ -8,6 +8,7 @@ export const handleArenaMessage = async (
 	mysql: serverlessMysql.ServerlessMysql,
 	allCards: AllCardsService,
 ): Promise<void> => {
+	console.log('handling arena message', message.reviewId);
 	const isValid = isMessageValid(message);
 	if (!isValid) {
 		return;
@@ -23,11 +24,13 @@ export const addArenaMatchStat = async (
 ): Promise<void> => {
 	let matchAnalysis: MatchAnalysis = null;
 	try {
+		console.debug('building match analysis');
 		// TODO: this is copy/pasted from trigger-assign-archetype
 		matchAnalysis = await buildMatchAnalysis(message);
 	} catch (e) {
 		console.error('Could not build match analysis', e);
 	}
+	console.debug('normalizing decklist');
 	const normalizedDecklist = normalizeDeckList(message.playerDecklist, allCards);
 	const [wins, losses] = message.additionalResult.split('-').map((result) => parseInt(result));
 	const insertQuery = `
@@ -49,6 +52,7 @@ export const addArenaMatchStat = async (
 		VALUES
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`;
+	console.debug('running query');
 	await mysql.query(insertQuery, [
 		message.creationDate,
 		message.buildNumber,
