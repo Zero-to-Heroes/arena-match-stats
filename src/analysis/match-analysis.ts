@@ -32,6 +32,7 @@ export const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis =
 		cardsDrawn = [...cardsDrawn, { cardId: event.cardId, turn: event.turn }];
 	});
 	parser.parse();
+	parser.removeAllListeners();
 
 	const deckDefinition = decode(decklist);
 	// List of cards, ordered by id, including duplicates
