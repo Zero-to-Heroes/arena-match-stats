@@ -14,6 +14,7 @@ export interface ReviewMessage {
 	readonly playerRank: string;
 	readonly result: 'lost' | 'won' | 'tied';
 	readonly reviewId: string;
+	readonly runId: string;
 	readonly gameMode: string;
 	readonly creationDate: string;
 	readonly userId: string;
