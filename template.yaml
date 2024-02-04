@@ -39,13 +39,13 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             Handler: process-arena-match-stats.default
-            Runtime: nodejs16.x
+            Runtime: nodejs18.x
             CodeUri: ./dist/process-arena-match-stats
             Timeout: 30
             MemorySize: 600 
             ReservedConcurrentExecutions: 10
-            Layers:
-                - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
+            # Layers:
+            #     - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
             Policies:
                 - AWSLambdaVPCAccessExecutionRole
                 - SecretsManagerReadWrite
@@ -53,7 +53,7 @@ Resources:
                 - AmazonSQSFullAccess
                 - AmazonSNSFullAccess
                 - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
-                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+                - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
             Tags:
                 LambdaName: process-arena-match-stats
             Events:
