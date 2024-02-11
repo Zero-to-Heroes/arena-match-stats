@@ -18,6 +18,7 @@ export interface ReviewMessage {
 	readonly gameMode: string;
 	readonly creationDate: string;
 	readonly userId: string;
+	readonly userName: string;
 	readonly gameFormat: GameFormatString;
 	readonly opponentCardId: string;
 	readonly playerCardId: string;
@@ -26,19 +27,8 @@ export interface ReviewMessage {
 	readonly playerDeckName: string;
 	readonly additionalResult: string;
 	readonly replayKey: string;
+	readonly metadataKey: string;
 	readonly application: string;
 	readonly appVersion: string;
 	readonly archetype: string;
-}
-
-export interface MatchAnalysis {
-	readonly cardsAnalysis: readonly CardAnalysis[];
-}
-
-export interface CardAnalysis {
-	cardId: string;
-	drawnBeforeMulligan: boolean;
-	mulligan: boolean;
-	kept: boolean;
-	drawnTurn: number | undefined;
 }

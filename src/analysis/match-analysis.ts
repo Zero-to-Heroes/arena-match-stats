@@ -1,18 +1,27 @@
 import { decode } from '@firestone-hs/deckstrings';
 import { Replay, parseHsReplayString } from '@firestone-hs/hs-replay-xml-parser/dist/public-api';
-import { CardAnalysis, MatchAnalysis, ReviewMessage } from '../model';
+import { CardAnalysis, MatchAnalysis, ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
+import { ReviewMessage } from '../model';
 import { allCards, s3 } from '../process-arena-match-stats';
 import { cardDrawn } from './parsers/cards-draw-parser';
 import { cardsInHand } from './parsers/cards-in-hand-parser';
 import { ReplayParser } from './replay-parser';
 
-export const buildMatchAnalysis = async (message: ReviewMessage): Promise<MatchAnalysis> => {
+export const buildMatchAnalysis = async (
+	message: ReviewMessage,
+	metadata: ReplayUploadMetadata | null,
+): Promise<Pick<MatchAnalysis, 'cardsAnalysis'>> => {
+	if (metadata?.stats?.matchAnalysis) {
+		console.debug('got match analysis for', message.reviewId);
+		return metadata.stats.matchAnalysis;
+	}
+
 	const replay = await loadReplay(message.replayKey);
 	const analysis = analyzeReplay(replay, message.playerDecklist);
 	return analysis;
 };
 
-export const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis => {
+export const analyzeReplay = (replay: Replay, decklist: string): Pick<MatchAnalysis, 'cardsAnalysis'> => {
 	const parser = new ReplayParser(replay, [cardsInHand, cardDrawn]);
 	let cardsAfterMulligan: { cardId: string; kept: boolean }[] = [];
 	let cardsBeforeMulligan: string[] = [];
@@ -64,7 +73,7 @@ export const analyzeReplay = (replay: Replay, decklist: string): MatchAnalysis =
 		};
 	});
 
-	const result: MatchAnalysis = {
+	const result: Pick<MatchAnalysis, 'cardsAnalysis'> = {
 		cardsAnalysis: cardsAnalysis,
 	};
 	return result;
