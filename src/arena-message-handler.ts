@@ -1,5 +1,5 @@
 /* eslint-disable no-extra-boolean-cast */
-import { AllCardsService, normalizeDeckList } from '@firestone-hs/reference-data';
+import { AllCardsService } from '@firestone-hs/reference-data';
 import { MatchAnalysis, ReplayUploadMetadata } from '@firestone-hs/replay-metadata';
 import serverlessMysql from 'serverless-mysql';
 import { buildMatchAnalysis } from './analysis/match-analysis';
@@ -40,7 +40,7 @@ export const addArenaMatchStat = async (
 	}
 	debug && console.debug('normalizing decklist');
 	const normalizedDecklist =
-		metadata?.game?.normalizedDeckstring ?? normalizeDeckList(message.playerDecklist, allCards);
+		metadata?.game?.normalizedDeckstring ?? allCards.normalizeDeckList(message.playerDecklist);
 	const [wins, losses] = message.additionalResult.split('-').map((result) => parseInt(result));
 	const insertQuery = `
 		INSERT IGNORE INTO arena_match_stats
