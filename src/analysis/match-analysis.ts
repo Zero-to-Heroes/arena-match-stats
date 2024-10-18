@@ -12,10 +12,10 @@ export const buildMatchAnalysis = async (
 	metadata: ReplayUploadMetadata | null,
 ): Promise<Pick<MatchAnalysis, 'cardsAnalysis'>> => {
 	if (metadata?.stats?.matchAnalysis) {
-		console.debug('got match analysis for', message.reviewId);
 		return metadata.stats.matchAnalysis;
 	}
 
+	console.warn('missing metadata', message.reviewId, message.metadataKey);
 	const replay = await loadReplay(message.replayKey);
 	const analysis = analyzeReplay(replay, message.playerDecklist);
 	return analysis;

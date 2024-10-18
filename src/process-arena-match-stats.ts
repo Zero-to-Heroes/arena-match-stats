@@ -1,4 +1,4 @@
-import { S3, getConnection } from '@firestone-hs/aws-lambda-utils';
+import { S3, getConnectionProxy } from '@firestone-hs/aws-lambda-utils';
 import { AllCardsService } from '@firestone-hs/reference-data';
 import { handleArenaMessage } from './arena-message-handler';
 import { ReviewMessage } from './model';
@@ -21,7 +21,7 @@ export default async (event, context): Promise<any> => {
 	if (!allCards.getCards()?.length) {
 		await allCards.initializeCardsDb();
 	}
-	const mysql = await getConnection();
+	const mysql = await getConnectionProxy();
 	for (const message of messages) {
 		await handleArenaMessage(message, mysql, allCards);
 	}

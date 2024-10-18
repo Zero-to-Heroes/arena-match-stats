@@ -90,7 +90,6 @@ const loadMetaDataFile = async (fileKey: string): Promise<ReplayUploadMetadata |
 	if (replayString?.startsWith('{')) {
 		const metadataStr = replayString;
 		if (!!metadataStr?.length) {
-			console.debug('got metadata');
 			fullMetaData = JSON.parse(metadataStr);
 		}
 	}
