@@ -69,3 +69,5 @@ Resources:
                     Type: SQS
                     Properties:
                         Queue: !GetAtt ArenaMatchStatsQueue.Arn
+                        BatchSize: 40
+                        MaximumBatchingWindowInSeconds: 60

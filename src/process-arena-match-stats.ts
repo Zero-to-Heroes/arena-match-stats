@@ -1,6 +1,6 @@
 import { S3, getConnectionProxy } from '@firestone-hs/aws-lambda-utils';
 import { AllCardsService } from '@firestone-hs/reference-data';
-import { handleArenaMessage } from './arena-message-handler';
+import { addArenaMatchStat, isMessageValid, loadMetaDataFile } from './arena-message-handler';
 import { ReviewMessage } from './model';
 
 export const allCards = new AllCardsService();
@@ -10,7 +10,6 @@ export const s3 = new S3();
 // the more traditional callback-style handler.
 // [1]: https://aws.amazon.com/blogs/compute/node-js-8-10-runtime-now-available-in-aws-lambda/
 export default async (event, context): Promise<any> => {
-	// const cleanup = logBeforeTimeout(context);
 	const messages: readonly ReviewMessage[] = (event.Records as any[])
 		.map((event) => JSON.parse(event.body))
 		.reduce((a, b) => a.concat(b), [])
@@ -21,11 +20,18 @@ export default async (event, context): Promise<any> => {
 	if (!allCards.getCards()?.length) {
 		await allCards.initializeCardsDb();
 	}
+
+	const validMessages = messages.filter((message) => isMessageValid(message));
+	console.log('processing', validMessages.length, 'messages');
+
+	const infos = await Promise.all(validMessages.map((message) => loadMetaDataFile(message)));
+	const validInfos = infos.filter((info) => info.metadata);
+
 	const mysql = await getConnectionProxy();
-	for (const message of messages) {
-		await handleArenaMessage(message, mysql, allCards);
+	for (const info of validInfos) {
+		await addArenaMatchStat(mysql, info.message, info.metadata, allCards);
 	}
 	await mysql.end();
-	// cleanup();
+
 	return { statusCode: 200, body: null };
 };
