@@ -21,6 +21,7 @@ export const addArenaMatchStat = async (
 			creationDate,
 			buildNumber,
 			reviewId,
+			gameMode,
 			runId,
             wins,
             losses,
@@ -33,13 +34,14 @@ export const addArenaMatchStat = async (
             matchAnalysis
 		)
 		VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`;
 	// debug && console.debug('running query');
 	await mysql.query(insertQuery, [
 		message.creationDate,
 		message.buildNumber,
 		message.reviewId,
+		message.gameMode,
 		message.runId,
 		wins,
 		losses,
