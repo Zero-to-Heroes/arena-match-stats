@@ -1,5 +1,6 @@
-import { S3, getConnectionProxy } from '@firestone-hs/aws-lambda-utils';
+import { getConnectionProxy, S3 } from '@firestone-hs/aws-lambda-utils';
 import { AllCardsService } from '@firestone-hs/reference-data';
+import { addArenaDiscoveredCards, ArenaDiscoveredCard, buildAllDiscoveredCards } from './arena-discovered-cards';
 import { addArenaMatchStat, isMessageValid, loadMetaDataFile } from './arena-message-handler';
 import { ReviewMessage } from './model';
 
@@ -27,10 +28,13 @@ export default async (event, context): Promise<any> => {
 	const infos = await Promise.all(validMessages.map((message) => loadMetaDataFile(message)));
 	const validInfos = infos.filter((info) => info.metadata);
 
+	const allDiscoveredCards: ArenaDiscoveredCard[] = buildAllDiscoveredCards(validInfos, allCards);
+
 	const mysql = await getConnectionProxy();
 	for (const info of validInfos) {
 		await addArenaMatchStat(mysql, info.message, info.metadata, allCards);
 	}
+	await addArenaDiscoveredCards(mysql, allDiscoveredCards);
 	await mysql.end();
 
 	return { statusCode: 200, body: null };

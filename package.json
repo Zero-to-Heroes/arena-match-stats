@@ -13,16 +13,16 @@
 	"author": "",
 	"license": "MIT",
 	"private": false,
-	"main": "dist/model.js",
-	"types": "dist/model.d.ts",
+	"main": "dist/public-api.js",
+	"types": "dist/public-api.d.ts",
 	"files": [
 		"dist/**/*"
 	],
 	"dependencies": {
-		"@firestone-hs/aws-lambda-utils": "^1.0.7",
-		"@firestone-hs/hs-replay-xml-parser": "^0.0.136",
+		"@firestone-hs/aws-lambda-utils": "^1.1.0",
+		"@firestone-hs/hs-replay-xml-parser": "^0.0.150",
 		"@firestone-hs/reference-data": "^2.0.35",
-		"@firestone-hs/replay-metadata": "^0.0.60",
+		"@firestone-hs/replay-metadata": "^0.0.80",
 		"aws-sdk": "^2.1040.0",
 		"axios": "^0.21.4",
 		"cross-fetch": "^3.1.5",

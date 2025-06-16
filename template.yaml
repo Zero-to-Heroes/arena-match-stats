@@ -71,3 +71,41 @@ Resources:
                         Queue: !GetAtt ArenaMatchStatsQueue.Arn
                         BatchSize: 40
                         MaximumBatchingWindowInSeconds: 60
+
+    
+    BuildArenaDiscoveredCardStats:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: build-arena-discovered-card-stats.default
+            Runtime: nodejs20.x
+            Timeout: 880
+            CodeUri: ./dist/build-arena-discovered-card-stats
+            MemorySize: 256
+            ReservedConcurrentExecutions: 1
+            VpcConfig:
+                SecurityGroupIds:
+                    - sg-eccd2691
+                SubnetIds:
+                    - subnet-894624ec # Only the private subnet
+            # Layers:
+            #     - !Sub "arn:aws:lambda:${AWS::Region}:580247275435:layer:LambdaInsightsExtension:14"
+            Policies:
+                - AWSLambdaVPCAccessExecutionRole
+                - AmazonSESFullAccess
+                - SecretsManagerReadWrite
+                - AmazonSNSReadOnlyAccess
+                - AmazonS3FullAccess
+                - AWSLambda_FullAccess
+                - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
+                # For VPC
+                - AWSLambdaENIManagementAccess
+                # - arn:aws:iam::478062583808:policy/CloudWatchPolicyForLambda # See https://stackoverflow.com/questions/51166504/disable-cloudwatch-to-monitor-logs-for-lambda-function
+            Tags:
+                LambdaName: build-arena-discovered-card-stats
+            Events:
+                # Populate the info on the last hour
+                LastPeriodTrigger:
+                    Type: Schedule
+                    Properties:
+                        # Cron that runs every hour
+                        Schedule: cron(0 * * * ? *)
